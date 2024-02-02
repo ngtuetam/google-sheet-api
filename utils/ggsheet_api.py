@@ -47,7 +47,7 @@ def create_spreadsheet(title):
     print(f"Spreadsheet ID: {(spreadsheet.get('spreadsheetId'))}")
     return spreadsheet.get("spreadsheetId")
   except HttpError as error:
-    print(f"An error occurred: {error}")
+    print(f"Error: {error}")
     return error
   
 def create_sheet(spreadsheet_id, sheet_name):
@@ -73,7 +73,7 @@ def create_sheet(spreadsheet_id, sheet_name):
     print(f"Sheet ID: {result.get('replies')[0].get('addSheet').get('properties').get('sheetId')}")
     return result.get("replies")[0].get("addSheet").get("properties").get("sheetId")
   except HttpError as error:
-    print(f"An error occurred: {error}")
+    print(f"Error: {error}")
 
 def get_sheet_id(spreadsheet_id, sheet_name):
   creds = authen()
@@ -91,7 +91,7 @@ def get_sheet_id(spreadsheet_id, sheet_name):
     print(f"Sheet ID: {sheet_id}")
     return sheet_id
   except HttpError as error:
-    print(f"An error occurred: {error}")
+    print(f"Error: {error}")
 
 def update_sheet(spreadsheet_id, sheet_name, range_name, body):
   creds = authen()
@@ -105,7 +105,7 @@ def update_sheet(spreadsheet_id, sheet_name, range_name, body):
     )
     print(f"Update sheet: {result}")
   except HttpError as error:
-    print(f"An error occurred: {error}")
+    print(f"Error: {error}")
 
 
 if __name__ == "__main__":
