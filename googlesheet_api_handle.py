@@ -1,7 +1,8 @@
 from googlesheet_api import GoogleSheetAPI
+from _const import *
 
 
-class HandleGoogleSheetAPI(GoogleSheetAPI):
+class ExportGoogleSheet(GoogleSheetAPI):
     def __init__(self):
         super().__init__()
 
@@ -50,27 +51,70 @@ class HandleGoogleSheetAPI(GoogleSheetAPI):
         body = {"values": [list(table_data.keys())] + list(zip(*table_data.values()))}
         self.update_sheet(spreadsheet_id, sheet_id, range_name, body)
 
-    def create_and_import_data_to_google_sheet(self, data: list[list], format_cell: dict, format_range: dict, merge_range: dict) -> None:
+    def create_and_import_data_to_google_sheet(self, data: list[list], options: dict):
         """
-            Import data to google drive
+            Create new spreadsheet and import data to google drive
         Args:
             data (list[list]): Data to be imported
-            cell_format (dict): format cell
-            format_cell (dict): dict format
+            options (dict): Options for creating spreadsheet and importing data
+        Returns:
+            googlesheet_url(str): Google Sheet URL
+
         """
+        body_data = [list(data.keys())] + list(zip(*data.values()))
+        format_cell_initial = {
+            "backgroundColor": {
+                "red": 0.0,
+                "green": 0.0,
+                "blue": 0.0
+            },
+            "horizontalAlignment": "CENTER",
+            "textFormat": {
+                "foregroundColor": {
+                    "red": 1.0,
+                    "green": 1.0,
+                    "blue": 1.0
+                },
+                "fontSize": 12,
+                "bold": True
+            }
+        }
+        format_range_initial = {
+            "sheetId": None,
+            "startRowIndex": 0,
+            "endRowIndex": 1,
+            "startColumnIndex": 0,
+            "endColumnIndex": len(body_data[0])
+        }
 
-        spreadsheet = self.create_spreadsheet("New Spreadsheet")
+        merge_range_initial = {
+            "sheetId": None,
+            "startRowIndex": 0,
+            "endRowIndex": len(body_data),
+            "startColumnIndex": 0,
+            "endColumnIndex": 0,
+        }
+
+        spreadsheet = self.create_spreadsheet(options.get('spreadsheet_title'))
         spreadsheet_id = spreadsheet
+        sheet_name = options.get('sheet_name')
 
-        worksheet_title = 'New Worksheet'
-        sheet_id = self.create_sheet(spreadsheet_id, worksheet_title)
+        if sheet_name:
+            sheet_id = self.create_sheet(spreadsheet_id, sheet_name)
+        else:
+            sheet_name = "Sheet1"
+            sheet_id = self.get_sheet_id(spreadsheet_id, sheet_name="Sheet1")
 
+
+        format_range = options.get('format_range') or format_range_initial
+        merge_range = options.get('merge_range') or merge_range_initial
+        format_cell = options.get('format_cell') or format_cell_initial
         format_range['sheetId'] = sheet_id
         merge_range['sheetId'] = sheet_id
         self.format_header(spreadsheet_id, format_cell, format_range)
+        range_name = f"'{sheet_name}'!{chr(65)}1:{chr(65 + len(body_data[0]) - 1)}{len(body_data)}"
 
-        num_rows = len(data)
-        num_columns = len(data[0])
-        range_name = f"'{worksheet_title}'!{chr(65)}1:{chr(65 + num_columns - 1)}{num_rows}"
+        self.merge_cell_and_write_data(spreadsheet_id, merge_range, range_name, body_data)
 
-        self.merge_cell_and_write_data(spreadsheet_id, merge_range, range_name, data)
+        googlesheet_url = f"{GOOGLE_SHEET_URL}/{spreadsheet_id}/edit#gid={sheet_id}"
+        return googlesheet_url

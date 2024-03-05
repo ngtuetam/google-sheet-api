@@ -1,9 +1,9 @@
 
-from googlesheet_api_handle import HandleGoogleSheetAPI
-from utils.test_api import GoogleSheetAPI, ExportGoogleSheet
+from googlesheet_api_handle import ExportGoogleSheet
+# from utils.test_api import GoogleSheetAPI, ExportGoogleSheet
 
 spreadsheet_id = "1IYgieoLhDpmzDc6riOXvCj2KAs1fggvgUOyQC5Jxirg"
-handle_google_sheet_api = HandleGoogleSheetAPI()
+handle_google_sheet_api = ExportGoogleSheet()
 
 # # TEST 1
 # spreadsheet_title = "New Spreadsheet NEW"
@@ -46,16 +46,11 @@ handle_google_sheet_api = HandleGoogleSheetAPI()
 
 
 
-data = [
-    ["A",  'B', 'C', 'D', 'E'],
-    [1, "AAA", 'BBB', 'CCC', 'DDD'],
-    [2, "AAA", 'BBB', 'CCC', 'DDD'],
-    [3, "AAA", 'BBB', 'CCC', 'DDD'],
-    [4, "AAA", 'BBB', 'CCC', 'DDD'],
-    [5, "AAA", 'BBB', 'CCC', 'DDD'],
-    [6, "AAA", 'BBB', 'CCC', 'DDD'],
-]
-# sheet_api.write_data_range(spreadsheet.get('spreadsheetId'), "'Sheet2'!A1:B2", data)
+
+data = {
+    "Column1": [7, 8, 9],
+    "Column2": ["P", "Q", "R"],
+}
 format_cell = {
     "backgroundColor": {
         "red": 0.0,
@@ -69,7 +64,7 @@ format_cell = {
             "green": 1.0,
             "blue": 1.0
         },
-        "fontSize": 12,
+        "fontSize": 18,
         "bold": True
     }
 }
@@ -78,7 +73,7 @@ format_range = {
     "startRowIndex": 0,
     "endRowIndex": 1,
     "startColumnIndex": 0,
-    "endColumnIndex": len(data[0])
+    "endColumnIndex": len(data)
 }
 
 merge_range = {
@@ -89,6 +84,14 @@ merge_range = {
     "endColumnIndex": 2,
 }
 
-handle_google_sheet_api.create_and_import_data_to_google_sheet(data, format_cell, format_range,merge_range)
+options = {
+    "spreadsheet_title": "TEST SHEET",
+}
+
+
+
+url = handle_google_sheet_api.create_and_import_data_to_google_sheet(data, options)
+print(url)
+print({"values": [list(data.keys())] + list(zip(*data.values()))})
 
 
